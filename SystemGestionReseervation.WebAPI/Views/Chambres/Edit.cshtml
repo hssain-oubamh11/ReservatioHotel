@@ -1,0 +1,92 @@
+﻿@model SystemGestionReservation.Application.DTOs.Chambre.UpdateChambreDto
+@{
+    ViewData["Title"] = "Modifier chambre";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>
+        <i class="bi bi-pencil"></i> Modifier — Chambre N° @ViewBag.ChambreNumero
+    </h2>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" asp-route-id="@ViewBag.ChambreId" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Type" class="form-label fw-bold">Type</label>
+                <select asp-for="Type" class="form-select">
+                    <option value="0">Simple</option>
+                    <option value="1">Double</option>
+                    <option value="2">Suite</option>
+                    <option value="3">Familiale</option>
+                </select>
+                <span asp-validation-for="Type" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Etage" class="form-label fw-bold">Étage</label>
+                    <input asp-for="Etage" type="number" min="0" max="50"
+                           class="form-control" />
+                    <span asp-validation-for="Etage" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CapaciteAccueil" class="form-label fw-bold">
+                        Capacité (personnes)
+                    </label>
+                    <input asp-for="CapaciteAccueil" type="number" min="1" max="20"
+                           class="form-control" />
+                    <span asp-validation-for="CapaciteAccueil" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-bold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-save"></i> Enregistrer les modifications
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Ajouter un équipement -->
+    <div class="col-md-5 offset-md-1">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-tools"></i> Ajouter un équipement
+            </div>
+            <div class="card-body">
+                <form asp-action="AjouterEquipement" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="chambreId" value="@ViewBag.ChambreId" />
+                    <div class="mb-3">
+                        <label class="form-label">Nom de l'équipement</label>
+                        <input type="text" name="nomEquipement" class="form-control"
+                               placeholder="ex: Climatisation, Vue mer, Balcon..." />
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-plus-circle"></i> Ajouter
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScripts");
+    }
+}

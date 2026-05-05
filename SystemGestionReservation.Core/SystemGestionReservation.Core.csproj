@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\OUBAMH HSSAIN\Downloads\Solution-gestion-universitaire-main\Solution-gestion-universitaire-main\SolutionGestionUniversitaire\SolutionGestionUniversitaire.SharedKernel\SystemGestionReservation.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

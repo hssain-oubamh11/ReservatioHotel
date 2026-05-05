@@ -1,0 +1,107 @@
+﻿@model SystemGestionReservation.Application.DTOs.Chambre.CreateChambreDto
+@{
+    ViewData["Title"] = "Nouvelle chambre";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-plus-circle"></i> Nouvelle chambre</h2>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Numero" class="form-label fw-bold">
+                    Numéro de chambre
+                </label>
+                <input asp-for="Numero" class="form-control"
+                       placeholder="ex: 101, 202A..." />
+                <span asp-validation-for="Numero" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Type" class="form-label fw-bold">Type</label>
+                <select asp-for="Type" class="form-select">
+                    <option value="">-- Sélectionner un type --</option>
+                    <option value="0">Simple</option>
+                    <option value="1">Double</option>
+                    <option value="2">Suite</option>
+                    <option value="3">Familiale</option>
+                </select>
+                <span asp-validation-for="Type" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Etage" class="form-label fw-bold">Étage</label>
+                    <input asp-for="Etage" type="number" min="0" max="50"
+                           class="form-control" />
+                    <span asp-validation-for="Etage" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CapaciteAccueil" class="form-label fw-bold">
+                        Capacité (personnes)
+                    </label>
+                    <input asp-for="CapaciteAccueil" type="number" min="1" max="20"
+                           class="form-control" />
+                    <span asp-validation-for="CapaciteAccueil" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-bold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"
+                          placeholder="Vue mer, balcon, rénovée en 2024..."></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Enregistrer
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Aide visuelle -->
+    <div class="col-md-5 offset-md-1">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-info-circle"></i> Types de chambres
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <span class="badge bg-secondary">Simple</span>
+                        — 1 lit simple, 1-2 personnes
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-primary">Double</span>
+                        — 1 grand lit ou 2 lits, 2 personnes
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-warning text-dark">Suite</span>
+                        — Chambre luxueuse avec salon
+                    </li>
+                    <li>
+                        <span class="badge bg-success">Familiale</span>
+                        — Grande chambre, 3-4 personnes
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScripts");
+    }
+}

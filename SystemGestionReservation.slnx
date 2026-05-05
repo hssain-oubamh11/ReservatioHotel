@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SystemGestionReseervation.WebAPI/SystemGestionReseervation.WebAPI.csproj" Id="75f3db81-a874-4b10-87e6-6f5f132f2d11" />
+  <Project Path="SystemGestionReservation.Application/SystemGestionReservation.Application.csproj" Id="4e4442da-3001-4170-b13d-9047102b51f9" />
+  <Project Path="SystemGestionReservation.Core/SystemGestionReservation.Core.csproj" />
+  <Project Path="SystemGestionReservation.Infrastructure/SystemGestionReservation.Infrastructure.csproj" Id="bf183af0-8bad-486b-833d-832ad76f21a8" />
+</Solution>

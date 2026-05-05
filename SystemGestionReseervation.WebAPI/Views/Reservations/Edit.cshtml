@@ -1,0 +1,119 @@
+﻿@model SystemGestionReservation.Application.DTOs.Reservation.UpdateReservationDto
+@{
+    ViewData["Title"] = "Modifier réservation";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>
+        <i class="bi bi-calendar-check"></i> Modifier la réservation #@ViewBag.ReservationId
+    </h2>
+    <a asp-action="Index" asp-route-clientId="@ViewBag.ClientId"
+           class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" asp-route-id="@ViewBag.ReservationId" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="clientId" value="@ViewBag.ClientId" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="ChambreId" class="form-label fw-bold">Chambre</label>
+                <select asp-for="ChambreId" asp-items="ViewBag.Chambres"
+                        class="form-select">
+                    <option value="">-- Sélectionner une chambre --</option>
+                </select>
+                <span asp-validation-for="ChambreId" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DateArrivee" class="form-label fw-bold">
+                        Date d'arrivée
+                    </label>
+                    <input asp-for="DateArrivee" type="date" class="form-control" />
+                    <span asp-validation-for="DateArrivee" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DateDepart" class="form-label fw-bold">
+                        Date de départ
+                    </label>
+                    <input asp-for="DateDepart" type="date" class="form-control" />
+                    <span asp-validation-for="DateDepart" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NombrePersonnes" class="form-label fw-bold">
+                    Nombre de personnes
+                </label>
+                <input asp-for="NombrePersonnes" type="number" min="1" max="20"
+                       class="form-control" />
+                <span asp-validation-for="NombrePersonnes" class="text-danger small"></span>
+            </div>
+
+            <!-- Calcul dynamique des nuits -->
+            <div class="alert alert-info" id="resumeNuits" style="display:none">
+                <i class="bi bi-moon"></i>
+                Durée du séjour : <strong id="nbNuits">0</strong> nuit(s)
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-save"></i> Enregistrer les modifications
+                </button>
+                <a asp-action="Index" asp-route-clientId="@ViewBag.ClientId"
+                   class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Rappel règles -->
+    <div class="col-md-5 offset-md-1">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-exclamation-triangle"></i> Règles de modification
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>La modification n'est possible qu'avant la date d'arrivée.</li>
+                    <li>La chambre doit être disponible sur les nouvelles dates.</li>
+                    <li>Le statut de la réservation doit être <strong>En attente</strong> ou <strong>Confirmée</strong>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScripts");
+    }
+    <script>
+        // Calcul dynamique du nombre de nuits
+        const arrivee = document.getElementById('DateArrivee');
+        const depart  = document.getElementById('DateDepart');
+        const resume  = document.getElementById('resumeNuits');
+        const nbNuits = document.getElementById('nbNuits');
+
+        function calculerNuits() {
+            const d1 = new Date(arrivee.value);
+            const d2 = new Date(depart.value);
+            if (d1 && d2 && d2 > d1) {
+                const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+                nbNuits.textContent = diff;
+                resume.style.display = 'block';
+            } else {
+                resume.style.display = 'none';
+            }
+        }
+
+        arrivee.addEventListener('change', calculerNuits);
+        depart.addEventListener('change', calculerNuits);
+        calculerNuits(); // au chargement
+    </script>
+}

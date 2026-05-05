@@ -1,0 +1,61 @@
+﻿@model SystemGestionReservation.Application.DTOs.Reservation.CreateReservationDto
+@{
+    ViewData["Title"] = "Nouvelle réservation";
+}
+
+<h2><i class="bi bi-calendar-plus"></i> Nouvelle réservation</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="ClientId" class="form-label">Client</label>
+                <select asp-for="ClientId" asp-items="ViewBag.Clients"
+                        class="form-select">
+                    <option value="">-- Sélectionner un client --</option>
+                </select>
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="ChambreId" class="form-label">Chambre</label>
+                <select asp-for="ChambreId" asp-items="ViewBag.Chambres"
+                        class="form-select">
+                    <option value="">-- Sélectionner une chambre --</option>
+                </select>
+                <span asp-validation-for="ChambreId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DateArrivee" class="form-label"></label>
+                <input asp-for="DateArrivee" type="date" class="form-control" />
+                <span asp-validation-for="DateArrivee" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DateDepart" class="form-label"></label>
+                <input asp-for="DateDepart" type="date" class="form-control" />
+                <span asp-validation-for="DateDepart" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="NombrePersonnes" class="form-label"></label>
+                <input asp-for="NombrePersonnes" type="number" min="1" max="20"
+                       class="form-control" />
+                <span asp-validation-for="NombrePersonnes" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Confirmer la réservation
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScripts");
+    }
+
+}
