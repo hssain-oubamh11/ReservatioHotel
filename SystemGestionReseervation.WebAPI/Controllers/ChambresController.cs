@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SystemGestionReservation.Application.DTOs.Chambre;
 using SystemGestionReservation.Application.Interfaces;
 using SystemGestionReservation.Core.Enums;
 
 namespace SystemGestionReservation.Web.Controllers;
 
+[Authorize(Roles = "Administrateur,Receptionniste")]
+[ApiController]
+[Route("api/[controller]")]
 public class ChambresController : Controller
 {
     private readonly IChambreService _chambreService;

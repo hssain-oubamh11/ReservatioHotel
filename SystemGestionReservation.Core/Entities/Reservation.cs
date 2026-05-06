@@ -68,14 +68,39 @@ public class Reservation : BaseEntity, IAggregateRoot
         Statut = StatutReservation.CheckOutEffectue;
     }
 
-    public void Annuler()
+    // Règle métier §3.4 — pénalités d'annulation
+    public decimal CalculerPenalite()
+    {
+        var joursAvantArrivee = (DateArrivee - DateTime.UtcNow).Days;
+
+        return joursAvantArrivee switch
+        {
+            >= 7 => 0m,          // Annulation gratuite si > 7 jours
+            >= 3 => 0.25m,       // 25% de pénalité entre 3 et 7 jours
+            >= 1 => 0.50m,       // 50% de pénalité entre 1 et 3 jours
+            _ => 1.00m        // 100% de pénalité le jour même
+        };
+    }
+
+    public (decimal PourcentagePenalite, string Message) Annuler()
     {
         if (Statut == StatutReservation.CheckInEffectue ||
             Statut == StatutReservation.CheckOutEffectue)
             throw new InvalidOperationException(
                 "Impossible d'annuler une réservation en cours ou terminée.");
 
+        var penalite = CalculerPenalite();
         Statut = StatutReservation.Annulee;
+
+        var message = penalite switch
+        {
+            0m => "Annulation gratuite.",
+            0.25m => "Pénalité de 25% appliquée.",
+            0.50m => "Pénalité de 50% appliquée.",
+            _ => "Pénalité de 100% appliquée (annulation le jour même)."
+        };
+
+        return (penalite * 100, message);
     }
 
     public void Modifier(DateTime dateArrivee, DateTime dateDepart,

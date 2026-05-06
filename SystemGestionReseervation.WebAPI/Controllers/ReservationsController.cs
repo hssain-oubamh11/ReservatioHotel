@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SystemGestionReservation.Application.DTOs.Reservation;
 using SystemGestionReservation.Application.Interfaces;
 
 namespace SystemGestionReservation.WebAPI.Controllers;
 
+[Authorize(Roles = "Administrateur,Receptionniste")]
 [ApiController]
 [Route("api/[controller]")]
 public class ReservationsController : ControllerBase
@@ -108,8 +110,12 @@ public class ReservationsController : ControllerBase
     {
         try
         {
-            await _reservationService.AnnulerAsync(id);
-            return Ok(new { message = "Réservation annulée avec succès." });
+            var (penalite, message) = await _reservationService.AnnulerAsync(id);
+            return Ok(new
+            {
+                message,
+                penaliteAppliquee = $"{penalite}%"
+            });
         }
         catch (Exception ex)
         {

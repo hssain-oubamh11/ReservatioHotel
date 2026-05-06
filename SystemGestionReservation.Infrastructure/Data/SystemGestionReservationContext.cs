@@ -15,6 +15,7 @@ public class SystemGestionReservationContext : DbContext
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<Facture> Factures { get; set; }
     public DbSet<LigneFacture> LignesFacture { get; set; }
+    public object Utilisateurs { get; internal set; }
 
     public SystemGestionReservationContext() : base(new
                DbContextOptionsBuilder<SystemGestionReservationContext>()
@@ -33,5 +34,8 @@ public class SystemGestionReservationContext : DbContext
         modelBuilder.ApplyConfiguration(new ReservationConfiguration());
         modelBuilder.ApplyConfiguration(new FactureConfiguration());
         modelBuilder.ApplyConfiguration(new LigneFactureConfiguration());
+        modelBuilder.ApplyConfiguration(new UtilisateurConfiguration());
     }
+    public DbSet<Utilisateur> Utilisateur { get; set; }
+   
 }

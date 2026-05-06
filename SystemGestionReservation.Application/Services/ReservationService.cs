@@ -73,14 +73,15 @@ public class ReservationService : IReservationService
         await _reservationRepository.SaveChangesAsync();
     }
 
-    public async Task AnnulerAsync(int id)
+    public async Task<(decimal Penalite, string Message)> AnnulerAsync(int id)
     {
         var reservation = await _reservationRepository.GetByIdAsync(id)
             ?? throw new ReservationIntrouvableException(id);
 
-        reservation.Annuler();
+        var (penalite, message) = reservation.Annuler();
         await _reservationRepository.UpdateAsync(reservation);
-        await _reservationRepository.SaveChangesAsync();
+
+        return (penalite, message);
     }
 
     public async Task CheckInAsync(int id)
@@ -129,4 +130,9 @@ public class ReservationService : IReservationService
         DateCreation = r.DateCreation,
         RemiseAppliquee = r.RemiseAppliquee
     };
+
+    Task<(decimal Penalite, string Message)> IReservationService.AnnulerAsync(int id)
+    {
+        return AnnulerAsync(id);
+    }
 }

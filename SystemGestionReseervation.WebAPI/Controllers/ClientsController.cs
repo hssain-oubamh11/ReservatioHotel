@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SystemGestionReservation.Application.DTOs.Client;
 using SystemGestionReservation.Application.Interfaces;
 
 namespace SystemGestionReservation.Web.Controllers;
 
+[Authorize(Roles = "Administrateur,Receptionniste")]
+[ApiController]
+[Route("api/[controller]")]
 public class ClientsController : Controller
 {
     private readonly IClientService _clientService;

@@ -1,68 +1,81 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using SystemGestionReservation.Application.Implementations;
 using SystemGestionReservation.Application.Interfaces;
+using SystemGestionReservation.Application.Services;
 using SystemGestionReservation.Core.Interfaces;
 using SystemGestionReservation.Infrastructure.Data;
 using SystemGestionReservation.Infrastructure.Repositories;
-using Swashbuckle.AspNetCore;
-using SystemGestionReservation.Application.Implementations;
-
+using SystemGestionReservation.WebAPI;
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Web API (pas MVC) ──────────────────────────────────────────────
+// ── Controllers + OpenAPI NET10 ────────────────────────────────────
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
-// ── Base de données — SQL Server Express ───────────────────────────
+// ── DbContext — lit depuis appsettings.json ────────────────────────
 builder.Services.AddDbContext<SystemGestionReservationContext>(options =>
     options.UseSqlServer(
-        @"Data Source=.\SQLEXPRESS;
-          Database=Hotel_MINIDB;
-          Integrated Security=True;
-          Persist Security Info=False;
-          Pooling=False;
-          MultipleActiveResultSets=False;
-          Encrypt=True;
-          TrustServerCertificate=True;
-          Command Timeout=0"));
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ── Repositories (Infrastructure) ─────────────────────────────────
+// ── JWT — lit depuis appsettings.json ─────────────────────────────
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                                           Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// ── Repositories ───────────────────────────────────────────────────
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IChambreRepository, ChambreRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IFactureRepository, FactureRepository>();
 builder.Services.AddScoped<ITarifRepository, TarifRepository>();
+builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
 
-// ── Services (Application) ────────────────────────────────────────
+// ── Services ───────────────────────────────────────────────────────
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IChambreService, ChambreService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddScoped<IFactureService, FactureService>();
 builder.Services.AddScoped<ITarifService, TarifService>();
+builder.Services.AddScoped<IFactureService, FactureService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-// ── CORS (optionnel — si frontend séparé) ─────────────────────────
+// ── CORS ───────────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader());
-});
+    options.AddPolicy("AllowAll", p =>
+        p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 var app = builder.Build();
 
-// ── Swagger uniquement en développement ───────────────────────────
+// ── Pipeline ───────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+    app.UseSwaggerUI(c =>
+        c.SwaggerEndpoint("/openapi/v1.json", "SGR Hôtel API v1"));
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseAuthentication();
 app.UseAuthorization();
-
-// ── Route API ─────────────────────────────────────────────────────
 app.MapControllers();
-
 app.Run();
