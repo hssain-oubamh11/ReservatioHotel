@@ -9,10 +9,14 @@ using SystemGestionReservation.Core.Interfaces;
 using SystemGestionReservation.Infrastructure.Data;
 using SystemGestionReservation.Infrastructure.Repositories;
 using SystemGestionReservation.WebAPI;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Controllers + OpenAPI NET10 ────────────────────────────────────
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 
 // ── DbContext — lit depuis appsettings.json ────────────────────────
@@ -40,6 +44,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
 builder.Services.AddAuthorization();
 
 // ── Repositories ───────────────────────────────────────────────────
@@ -61,7 +66,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // ── CORS ───────────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", p =>
-        p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+        p.AllowAnyOrigin()
+         .AllowAnyMethod()
+         .AllowAnyHeader()));
 
 var app = builder.Build();
 
@@ -72,9 +79,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
         c.SwaggerEndpoint("/openapi/v1.json", "SGR Hôtel API v1"));
 }
-
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

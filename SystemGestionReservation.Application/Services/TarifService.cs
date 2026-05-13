@@ -38,6 +38,16 @@ public class TarifService : ITarifService
         return tarif.PrixParNuit;
     }
 
+    public async Task UpdateAsync(int id, UpdateTarifDto dto)
+    {
+        var tarif = await _tarifRepository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Tarif {id} introuvable.");
+
+        tarif.ModifierPrix(dto.PrixParNuit);
+        await _tarifRepository.UpdateAsync(tarif);
+        await _tarifRepository.SaveChangesAsync();
+    }
+
     // ── Règle métier : saison selon le mois ─────────────────────────
     private static Saison DeterminerSaison(DateTime date) => date.Month switch
     {

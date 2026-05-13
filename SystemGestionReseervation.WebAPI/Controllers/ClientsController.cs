@@ -8,7 +8,7 @@ namespace SystemGestionReservation.Web.Controllers;
 [Authorize(Roles = "Administrateur,Receptionniste")]
 [ApiController]
 [Route("api/[controller]")]
-public class ClientsController : Controller
+public class ClientsController : ControllerBase
 {
     private readonly IClientService _clientService;
 
@@ -17,98 +17,65 @@ public class ClientsController : Controller
         _clientService = clientService;
     }
 
-    // GET: /Clients
-    public async Task<IActionResult> Index(string? terme)
+    // GET: api/clients
+    [HttpGet]
+    public async Task<IActionResult> GetAll(string? terme)
     {
         var clients = string.IsNullOrWhiteSpace(terme)
             ? await _clientService.GetAllAsync()
             : await _clientService.SearchAsync(terme);
 
-        ViewBag.Terme = terme;
-        return View(clients);
+        return Ok(clients);
     }
 
-    // GET: /Clients/Details/5
-    public async Task<IActionResult> Details(int id)
+    // GET: api/clients/5
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
     {
         var client = await _clientService.GetByIdAsync(id);
-        if (client is null) return NotFound();
-        return View(client);
+
+        if (client == null)
+            return NotFound();
+
+        return Ok(client);
     }
 
-    // GET: /Clients/Create
-    public IActionResult Create() => View();
-
-    // POST: /Clients/Create
+    // POST: api/clients
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateClientDto dto)
     {
-        if (!ModelState.IsValid) return View(dto);
-
         try
         {
             await _clientService.CreateAsync(dto);
-            TempData["Success"] = "Client créé avec succès.";
-            return RedirectToAction(nameof(Index));
+            return Ok(new { message = "Client créé avec succès" });
         }
         catch (InvalidOperationException ex)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
-            return View(dto);
+            return BadRequest(ex.Message);
         }
     }
 
-    // GET: /Clients/Edit/5
-    public async Task<IActionResult> Edit(int id)
-    {
-        var client = await _clientService.GetByIdAsync(id);
-        if (client is null) return NotFound();
-
-        var dto = new UpdateClientDto
-        {
-            Nom = client.Nom,
-            Prenom = client.Prenom,
-            Adresse = client.Adresse,
-            Telephone = client.Telephone,
-            Email = client.Email
-        };
-        ViewBag.ClientId = id;
-        return View(dto);
-    }
-
-    // POST: /Clients/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
+    // PUT: api/clients/5
+    [HttpPut("{id}")]
     public async Task<IActionResult> Edit(int id, UpdateClientDto dto)
     {
-        if (!ModelState.IsValid)
-        {
-            ViewBag.ClientId = id;
-            return View(dto);
-        }
-
         try
         {
             await _clientService.UpdateAsync(id, dto);
-            TempData["Success"] = "Client modifié avec succès.";
-            return RedirectToAction(nameof(Index));
+            return Ok(new { message = "Client modifié avec succès" });
         }
         catch (KeyNotFoundException ex)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
-            ViewBag.ClientId = id;
-            return View(dto);
+            return NotFound(ex.Message);
         }
     }
 
-    // POST: /Clients/Desactiver/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
+    // DELETE: api/clients/5
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Desactiver(int id)
     {
         await _clientService.DesactiverAsync(id);
-        TempData["Success"] = "Client désactivé.";
-        return RedirectToAction(nameof(Index));
+
+        return Ok(new { message = "Client désactivé" });
     }
 }

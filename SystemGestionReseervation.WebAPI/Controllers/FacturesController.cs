@@ -7,7 +7,7 @@ namespace SystemGestionReservation.Web.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class FacturesController : Controller
+public class FacturesController : ControllerBase
 {
     private readonly IFactureService _factureService;
 
@@ -16,19 +16,24 @@ public class FacturesController : Controller
         _factureService = factureService;
     }
 
-    // GET: /Factures/Details/5
-    public async Task<IActionResult> Details(int id)
+    // GET: api/factures/5
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
     {
         var facture = await _factureService.GetByIdAsync(id);
-        if (facture is null) return NotFound();
-        return View(facture);
+
+        if (facture == null)
+            return NotFound();
+
+        return Ok(facture);
     }
 
-    // GET: /Factures/ParClient/5
+    // GET: api/factures/client/5
+    [HttpGet("client/{clientId}")]
     public async Task<IActionResult> ParClient(int clientId)
     {
         var factures = await _factureService.GetByClientIdAsync(clientId);
-        ViewBag.ClientId = clientId;
-        return View(factures);
+
+        return Ok(factures);
     }
 }

@@ -6,7 +6,8 @@ namespace SystemGestionReservation.Infrastructure.Data;
 
 public class SystemGestionReservationContext : DbContext
 {
-    public SystemGestionReservationContext(DbContextOptions<SystemGestionReservationContext> options) : base(options) { }
+    //<SystemGestionReservationContext>
+    public SystemGestionReservationContext(DbContextOptions options) : base(options) { }
 
     public DbSet<Client> Clients { get; set; }
     public DbSet<Chambre> Chambres { get; set; }

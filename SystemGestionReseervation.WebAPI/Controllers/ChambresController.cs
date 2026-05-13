@@ -9,7 +9,7 @@ namespace SystemGestionReservation.Web.Controllers;
 [Authorize(Roles = "Administrateur,Receptionniste")]
 [ApiController]
 [Route("api/[controller]")]
-public class ChambresController : Controller
+public class ChambresController : ControllerBase
 {
     private readonly IChambreService _chambreService;
 
@@ -18,91 +18,87 @@ public class ChambresController : Controller
         _chambreService = chambreService;
     }
 
-    // GET: /Chambres
-    public async Task<IActionResult> Index()
+    // GET: api/chambres
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
     {
         var chambres = await _chambreService.GetAllActiveAsync();
-        return View(chambres);
+        return Ok(chambres);
     }
 
-    // GET: /Chambres/Disponibles
-    public async Task<IActionResult> Disponibles(DateTime dateArrivee, DateTime dateDepart, TypeChambre? type)
+    // GET: api/chambres/disponibles
+    [HttpGet("disponibles")]
+    public async Task<IActionResult> Disponibles(
+        DateTime dateArrivee,
+        DateTime dateDepart,
+        TypeChambre? type)
     {
-        if (dateArrivee == default || dateDepart == default)
-            return View(Enumerable.Empty<ChambreDto>());
+        var chambres = await _chambreService
+            .GetDisponiblesAsync(dateArrivee, dateDepart, type);
 
-        var chambres = await _chambreService.GetDisponiblesAsync(dateArrivee, dateDepart, type);
-        ViewBag.DateArrivee = dateArrivee;
-        ViewBag.DateDepart = dateDepart;
-        return View(chambres);
+        return Ok(chambres);
     }
 
-    // GET: /Chambres/Create
-    public IActionResult Create() => View();
-
-    // POST: /Chambres/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateChambreDto dto)
-    {
-        if (!ModelState.IsValid) return View(dto);
-
-        await _chambreService.CreateAsync(dto);
-        TempData["Success"] = "Chambre créée avec succès.";
-        return RedirectToAction(nameof(Index));
-    }
-
-    // GET: /Chambres/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    // GET: api/chambres/5
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
     {
         var chambre = await _chambreService.GetByIdAsync(id);
-        if (chambre is null) return NotFound();
 
-        var dto = new UpdateChambreDto
-        {
-            Type = chambre.Type,
-            Etage = chambre.Etage,
-            CapaciteAccueil = chambre.CapaciteAccueil,
-            Description = chambre.Description
-        };
-        ViewBag.ChambreId = id;
-        ViewBag.ChambreNumero = chambre.Numero;
-        return View(dto);
+        if (chambre == null)
+            return NotFound();
+
+        return Ok(chambre);
     }
 
-    // POST: /Chambres/Edit/5
+    // POST: api/chambres
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CreateChambreDto dto)
+    {
+        await _chambreService.CreateAsync(dto);
+
+        return Ok(new
+        {
+            message = "Chambre créée avec succès"
+        });
+    }
+
+    // PUT: api/chambres/5
+    [HttpPut("{id}")]
     public async Task<IActionResult> Edit(int id, UpdateChambreDto dto)
     {
-        if (!ModelState.IsValid)
-        {
-            ViewBag.ChambreId = id;
-            return View(dto);
-        }
-
         await _chambreService.UpdateAsync(id, dto);
-        TempData["Success"] = "Chambre modifiée avec succès.";
-        return RedirectToAction(nameof(Index));
+
+        return Ok(new
+        {
+            message = "Chambre modifiée avec succès"
+        });
     }
 
-    // POST: /Chambres/AjouterEquipement
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AjouterEquipement(int chambreId, string nomEquipement)
+    // POST: api/chambres/ajouter-equipement
+    [HttpPost("ajouter-equipement")]
+    public async Task<IActionResult> AjouterEquipement(
+        int chambreId,
+        string nomEquipement)
     {
-        await _chambreService.AjouterEquipementAsync(chambreId, nomEquipement);
-        TempData["Success"] = "Équipement ajouté.";
-        return RedirectToAction(nameof(Index));
+        await _chambreService
+            .AjouterEquipementAsync(chambreId, nomEquipement);
+
+        return Ok(new
+        {
+            message = "Équipement ajouté"
+        });
     }
 
-    // POST: /Chambres/Desactiver/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
+    // DELETE: api/chambres/5
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Desactiver(int id)
     {
         await _chambreService.DesactiverAsync(id);
-        TempData["Success"] = "Chambre désactivée.";
-        return RedirectToAction(nameof(Index));
+
+        return Ok(new
+        {
+            message = "Chambre désactivée"
+        });
     }
 }

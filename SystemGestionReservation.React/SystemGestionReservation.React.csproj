@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\pages\clients\ClientCreate.js" />
+    <Compile Include="src\pages\clients\ClientDetails.js" />
+    <Compile Include="src\pages\clients\ClientList.js" />
+    <Compile Include="src\pages\reservations\ReservationsList.js" />
+  </ItemGroup>
+
+</Project>

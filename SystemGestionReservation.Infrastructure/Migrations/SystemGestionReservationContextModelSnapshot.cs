@@ -279,6 +279,45 @@ namespace SystemGestionReservation.Infrastructure.Migrations
                     b.ToTable("Tarifs", (string)null);
                 });
 
+            modelBuilder.Entity("SystemGestionReservation.Core.Entities.Utilisateur", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("EstActif")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("Login")
+                        .IsUnique();
+
+                    b.ToTable("Utilisateurs", (string)null);
+                });
+
             modelBuilder.Entity("ChambreEquipement", b =>
                 {
                     b.HasOne("SystemGestionReservation.Core.Entities.Chambre", null)
@@ -329,6 +368,16 @@ namespace SystemGestionReservation.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Chambre");
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("SystemGestionReservation.Core.Entities.Utilisateur", b =>
+                {
+                    b.HasOne("SystemGestionReservation.Core.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Client");
                 });
